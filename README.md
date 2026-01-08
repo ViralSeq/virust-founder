@@ -73,3 +73,50 @@ hyphy /path/to/AncestralSequences.bf --fit alignment.fit --output alignment.json
 9. Alternatively, use Phangorn in R to generate ancenstral sequences. See the R example.
 
 10. Add stop codon to the end of the sequence. Can always use `TAA`. need a script.
+
+
+# Setup and Usage
+
+## Install
+
+```bash
+sh ./installer.sh
+```
+
+Ensures installation of conda, conda environment for founder, and any other required dependencies.
+
+## Run
+
+```bash
+conda run -n founder cargo run ...
+```
+
+Or to enter Founder conda environment for multiple runs:
+
+```bash
+conda activate founder
+cargo run ...
+```
+
+## File Structure
+
+```text
+project-root/
+├── in/                     # Input sequence files
+│   ├── patient_file_1.fasta
+│   ├── patient_file_2.fasta
+│   └── patient_file_n.fasta
+│
+├── work/                   # Intermediate pipeline artifacts
+│   ├── combined_sga.fasta            # Combined sequences
+│   ├── combined_sga.direction.fasta  # Locator results
+│   ├── genecutter.aa.fasta           # SimpleGC amino acid output
+│   ├── genecutter.na.fasta           # SimpleGC nucleotide output
+│   ├── alignment.fasta               # Filtered GeneCutter results
+│   ├── alignment.treefile            # iqtree3 output
+│   └── alignment.fit                 # FitMG94 output
+│
+└── output/                 # Final outputs
+    ├── alignment.json                # AncestralSequences output
+    └── alignment.treefile            # iqtree3 output
+```

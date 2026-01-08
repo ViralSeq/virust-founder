@@ -1,0 +1,12 @@
+name: founder
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - ruby>=3.1
+  - iqtree>=3.0
+  - hyphy>=2.5.0
+  - r-base>=4.1
+  - r-phangorn>=2.12
+  - pip

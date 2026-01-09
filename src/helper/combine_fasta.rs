@@ -4,8 +4,6 @@ use std::io;
 use std::path::PathBuf;
 use thiserror::Error;
 
-use crate::helper::args::Args;
-
 #[derive(Debug, Error)]
 pub enum CombineError {
     #[error("Failed to read input directory: {path}")] ReadDir {
@@ -95,19 +93,22 @@ fn validate_dna(seq: &[u8]) -> Result<(), String> {
     }
 }
 
-pub fn combine_fasta(args: &Args) -> Result<PathBuf, CombineError> {
-    fs::create_dir_all(&args.output_work).map_err(|e| CombineError::CreateOutputDir {
-        path: args.output_work.clone(),
-        source: e,
-    })?;
-
-    let output_fasta = args.output_work.clone().join("combined_sga.fasta");
+pub fn combine_fasta(
+    input: &PathBuf,
+    combined_fasta_pathbuf: &PathBuf
+) -> Result<(), CombineError> {
+    if let Some(parent) = combined_fasta_pathbuf.parent() {
+        fs::create_dir_all(parent).map_err(|e| CombineError::CreateOutputDir {
+            path: parent.to_path_buf(),
+            source: e,
+        })?;
+    }
 
     // Find fasta files
     let mut fasta_files: Vec<PathBuf> = fs
-        ::read_dir(&args.input)
+        ::read_dir(&input)
         .map_err(|e| CombineError::ReadDir {
-            path: args.input.clone(),
+            path: input.to_path_buf(),
             source: e,
         })?
         .filter_map(|ent| ent.ok().map(|e| e.path()))
@@ -123,8 +124,8 @@ pub fn combine_fasta(args: &Args) -> Result<PathBuf, CombineError> {
     fasta_files.sort();
 
     // Create output writer
-    let out_file = fs::File::create(&output_fasta).map_err(|e| CombineError::CreateOutput {
-        path: output_fasta.clone(),
+    let out_file = fs::File::create(combined_fasta_pathbuf).map_err(|e| CombineError::CreateOutput {
+        path: combined_fasta_pathbuf.to_path_buf(),
         source: e,
     })?;
     let mut writer = fasta::Writer::new(io::BufWriter::new(out_file));
@@ -159,5 +160,5 @@ pub fn combine_fasta(args: &Args) -> Result<PathBuf, CombineError> {
         }
     }
 
-    Ok(output_fasta)
+    Ok(())
 }

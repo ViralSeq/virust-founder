@@ -112,8 +112,6 @@ pub fn founder(
         source: e,
     })?;
 
-    // TODO add an option to use Phanghorn instead of AncestralSequences here
-
     if args.use_phanghorn {
         println!("Running Phanghorn ancestry.R");
         let phanghorn_args = vec![

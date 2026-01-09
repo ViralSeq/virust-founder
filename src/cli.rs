@@ -39,6 +39,10 @@ pub enum Commands {
         /// keep original files
         #[arg(long, default_value_t = false)]
         keep_original: bool,
+
+        /// use Phanghorn instead of HyPhy Analysis
+        #[arg(long, default_value_t = false)]
+        use_phanghorn: bool,
     },
 }
 

@@ -34,7 +34,6 @@ locator -i combined_sga.fasta
 - Make sure the checkbox for `Codon align the region` is selected.
 - Regions(s) to align and extract: Select `Env CDS`.
 - No need to insert references.
-- TODO! Use simpleGC
 
 4. Remove sequences with
 
@@ -116,7 +115,7 @@ project-root/
 │   ├── alignment.treefile            # iqtree3 output
 │   └── alignment.fit                 # FitMG94 output
 │
-└── output/                 # Final outputs
+└── results/                 # Final outputs
     ├── alignment.json                # AncestralSequences output
     └── alignment.treefile            # iqtree3 output
 ```

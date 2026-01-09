@@ -1,8 +1,10 @@
 use bio::io::fasta;
 use std::fs;
 use std::io;
-use std::path::{ Path, PathBuf };
+use std::path::PathBuf;
 use thiserror::Error;
+
+use crate::helper::args::Args;
 
 #[derive(Debug, Error)]
 pub enum CombineError {
@@ -93,27 +95,19 @@ fn validate_dna(seq: &[u8]) -> Result<(), String> {
     }
 }
 
-/// Combine all FASTA files in `input_dir` into `output_fasta`.
-pub fn combine_fasta(
-    input_dir: impl AsRef<Path>,
-    output_dir: impl AsRef<Path>
-) -> Result<PathBuf, CombineError> {
-    let input_dir = input_dir.as_ref().to_path_buf();
-
-    let output_fasta_dir = output_dir.as_ref().join("work");
-
-    fs::create_dir_all(&output_fasta_dir).map_err(|e| CombineError::CreateOutputDir {
-        path: output_fasta_dir.clone(),
+pub fn combine_fasta(args: &Args) -> Result<PathBuf, CombineError> {
+    fs::create_dir_all(&args.output_work).map_err(|e| CombineError::CreateOutputDir {
+        path: args.output_work.clone(),
         source: e,
     })?;
 
-    let output_fasta = output_fasta_dir.join("combined_sga.fasta");
+    let output_fasta = args.output_work.clone().join("combined_sga.fasta");
 
     // Find fasta files
     let mut fasta_files: Vec<PathBuf> = fs
-        ::read_dir(&input_dir)
+        ::read_dir(&args.input)
         .map_err(|e| CombineError::ReadDir {
-            path: input_dir.clone(),
+            path: args.input.clone(),
             source: e,
         })?
         .filter_map(|ent| ent.ok().map(|e| e.path()))

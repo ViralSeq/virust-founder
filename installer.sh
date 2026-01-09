@@ -41,7 +41,7 @@ if [ ! -d "hyphy-analyses" ]; then
 fi
 
 # Install viral_seq using the env's Ruby (avoid calling system Ruby/gem)
-conda run -n "$ENV_NAME" ruby -S gem install viral_seq -v 1.10.0
+conda run -n "$ENV_NAME" ruby -S gem install viral_seq -v 1.10.3
 
 echo
 echo "Done."

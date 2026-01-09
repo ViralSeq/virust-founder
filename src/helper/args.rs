@@ -7,10 +7,16 @@ pub struct Args {
     pub output_work: PathBuf,
     pub output_results: PathBuf,
     pub keep_original: bool,
+    pub use_phanghorn: bool,
 }
 
 impl Args {
-    pub fn new(input: impl Into<PathBuf>, output: impl Into<PathBuf>, keep_original: bool) -> Self {
+    pub fn new(
+        input: impl Into<PathBuf>,
+        output: impl Into<PathBuf>,
+        keep_original: bool,
+        use_phanghorn: bool
+    ) -> Self {
         let input = input.into();
         let output = output.into();
 
@@ -23,6 +29,7 @@ impl Args {
             output_work,
             output_results,
             keep_original,
+            use_phanghorn,
         }
     }
 }

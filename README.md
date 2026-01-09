@@ -97,6 +97,14 @@ conda activate founder
 cargo run ...
 ```
 
+## Options
+
+To use Phanghorn for ancestral sequences instead of HyPhy, add the following flag
+
+```bash
+--use-phanghorn
+```
+
 ## File Structure
 
 ```text

@@ -8,7 +8,12 @@ use crate::helper::{
     run_cmd::run_cmd,
 };
 
-pub fn founder(input: String, output: String, keep_original: bool) -> Result<(), FounderError> {
+pub fn founder(
+    input: String,
+    output: String,
+    keep_original: bool,
+    use_phanghorn: bool
+) -> Result<(), FounderError> {
     println!(
         "Running founder pipeline with parameters\nInput: {}\nOutput: {}\nKeep Originals {}\n",
         input,
@@ -16,7 +21,9 @@ pub fn founder(input: String, output: String, keep_original: bool) -> Result<(),
         keep_original
     );
 
-    let args: Args = Args::new(input, output, keep_original);
+    let args: Args = Args::new(input, output, keep_original, use_phanghorn);
+
+    let project_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
 
     let combined_fasta_pathbuf = args.output_work.join("combined_sga.fasta");
     let gc_aa_output_pathbuf = args.output_work.join("genecutter.aa.fasta");
@@ -26,11 +33,13 @@ pub fn founder(input: String, output: String, keep_original: bool) -> Result<(),
     let fit_output_pathbuf = args.output_work.join("alignment.fit");
     let ancestral_sequences_output_pathbuf = args.output_results.join("alignment.json");
 
-    let path_to_hyphy_analyses = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let path_to_hyphy_analyses = project_root.join("hyphy-analyses");
     let path_to_fitmg94 = path_to_hyphy_analyses.join("FitMG94").join("FitMG94.bf");
     let path_to_ancestral_sequences = path_to_hyphy_analyses
         .join("AncestralSequences")
         .join("AncestralSequences.bf");
+
+    let ancestry_phanghorn_pathbuf = project_root.join("scripts").join("ancestry.r");
 
     // combine all .fasta in directory to combined_sga.fasta
     println!("Combining sequences.");
@@ -105,18 +114,34 @@ pub fn founder(input: String, output: String, keep_original: bool) -> Result<(),
 
     // TODO add an option to use Phanghorn instead of AncestralSequences here
 
-    println!("Running Ancestral Sequences");
-    let ancestral_args = vec![
-        path_to_ancestral_sequences.as_os_str().to_os_string(),
-        "--fit".into(),
-        fit_output_pathbuf.as_os_str().to_os_string(),
-        "--output".into(),
-        ancestral_sequences_output_pathbuf.as_os_str().to_os_string()
-    ];
-    run_cmd("hyphy", ancestral_args).map_err(|e| FounderError::CommandFailed {
-        program: "hyphy".to_string(),
-        source: e,
-    })?;
+    if args.use_phanghorn {
+        println!("Running Phanghorn ancestry.R");
+
+        let phanghorn_args = vec![
+            ancestry_phanghorn_pathbuf.as_os_str().to_os_string(),
+            frameshift_output_pathbuf.as_os_str().to_os_string(),
+            iqtree_output_location.as_os_str().to_os_string(),
+            ancestral_sequences_output_pathbuf.as_os_str().to_os_string()
+        ];
+
+        run_cmd("Rscript", phanghorn_args).map_err(|e| FounderError::CommandFailed {
+            program: "Rscript".to_string(),
+            source: e,
+        })?;
+    } else {
+        println!("Running Ancestral Sequences");
+        let ancestral_args = vec![
+            path_to_ancestral_sequences.as_os_str().to_os_string(),
+            "--fit".into(),
+            fit_output_pathbuf.as_os_str().to_os_string(),
+            "--output".into(),
+            ancestral_sequences_output_pathbuf.as_os_str().to_os_string()
+        ];
+        run_cmd("hyphy", ancestral_args).map_err(|e| FounderError::CommandFailed {
+            program: "hyphy".to_string(),
+            source: e,
+        })?;
+    }
 
     // TODO add stop codon
 

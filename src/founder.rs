@@ -26,6 +26,9 @@ pub fn founder(
     let project_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
 
     let combined_fasta_pathbuf = args.output_work.join("combined_sga.fasta");
+    let locator_output_pathbuf = combined_fasta_pathbuf
+        .with_extension("alignment")
+        .with_extension("fasta");
     let gc_aa_output_pathbuf = args.output_work.join("genecutter.aa.fasta");
     let gc_na_output_pathbuf = args.output_work.join("genecutter.na.fasta");
     let frameshift_output_pathbuf = args.output_work.join("alignment.fasta");
@@ -49,9 +52,6 @@ pub fn founder(
     combine_fasta(&args.input, &combined_fasta_pathbuf).map_err(|e| {
         FounderError::CombineFastaFailed { source: e }
     })?;
-    let locator_output_pathbuf = combined_fasta_pathbuf
-        .with_extension("alignment")
-        .with_extension("fasta");
     println!("Running locator -i {}", locator_output_pathbuf.display());
     run_cmd("locator", ["-i", combined_fasta_pathbuf.to_string_lossy().as_ref()]).map_err(|e| {
         FounderError::CommandFailed {
@@ -116,19 +116,18 @@ pub fn founder(
 
     if args.use_phanghorn {
         println!("Running Phanghorn ancestry.R");
-
         let phanghorn_args = vec![
             ancestry_phanghorn_pathbuf.as_os_str().to_os_string(),
             frameshift_output_pathbuf.as_os_str().to_os_string(),
             iqtree_output_location.as_os_str().to_os_string(),
             ancestral_sequences_output_pathbuf.as_os_str().to_os_string()
         ];
-
         run_cmd("Rscript", phanghorn_args).map_err(|e| FounderError::CommandFailed {
             program: "Rscript".to_string(),
             source: e,
         })?;
     } else {
+        // use hyphy
         println!("Running Ancestral Sequences");
         let ancestral_args = vec![
             path_to_ancestral_sequences.as_os_str().to_os_string(),

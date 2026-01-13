@@ -66,10 +66,6 @@ pub fn founder(
     }
     println!("Locator output created: {}\n", locator_output_pathbuf.display());
 
-    // send combined_sga.direction.fasta to SimpleGC
-    // curl region=env (=ENV CDS , codon_align defaults to yes, insert_ref defualts to no)
-    // parse AA/NA results to genecutter.fasta
-
     println!("Running GeneCutter");
     process_gene_cutter(locator_output_pathbuf, gc_aa_output_pathbuf, gc_na_output_pathbuf).map_err(
         |e| FounderError::GeneCutterFailed { message: e.to_string() }

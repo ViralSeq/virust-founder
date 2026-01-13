@@ -73,10 +73,13 @@ pub fn process_gene_cutter(
         source: e,
     })?;
 
+    // SimpleGC parameters (sending default values...for clarity)
     let form = multipart::Form
         ::new()
         .part("seq_upload", multipart::Part::reader(file).file_name("sample.fasta"))
         .text("region", "env")
+        .text("codon_align", "Yes")
+        .text("insert_ref", "Yes")
         .text("return_format", "fasta");
 
     let response = client

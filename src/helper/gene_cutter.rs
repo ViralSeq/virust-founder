@@ -1,65 +1,11 @@
 use std::fs::{ self, File };
-use std::io::{ self, Cursor };
+use std::io::Cursor;
 use std::path::PathBuf;
 
 use bio::io::fasta;
 use reqwest::blocking::{ multipart, Client };
-use reqwest::StatusCode;
-use thiserror::Error;
 
-#[derive(Debug, Error)]
-pub enum GeneCutterError {
-    #[error("Failed to open locator output file: {path}")] OpenLocator {
-        path: PathBuf,
-        #[source]
-        source: io::Error,
-    },
-
-    #[error("GeneCutter request failed")] Request {
-        #[source]
-        source: reqwest::Error,
-    },
-
-    #[error("Failed to read GeneCutter response body")] ResponseRead {
-        #[source]
-        source: reqwest::Error,
-    },
-
-    #[error("GeneCutter request failed: {status}")] RequestFailed {
-        status: StatusCode,
-    },
-
-    #[error("Failed to create output directory: {path}")] CreateOutputDir {
-        path: PathBuf,
-        #[source]
-        source: io::Error,
-    },
-
-    #[error("Failed to create output file: {path}")] CreateOutputFile {
-        path: PathBuf,
-        #[source]
-        source: io::Error,
-    },
-
-    #[error("No FASTA blocks found in GeneCutter response")]
-    NoFastaBlocks,
-
-    #[error("Found NA FASTA but no AA FASTA in response")]
-    MissingAa,
-
-    #[error("Found AA FASTA but no NA FASTA in response")]
-    MissingNa,
-
-    #[error("Invalid FASTA record in GeneCutter response")] FastaParse {
-        #[source]
-        source: io::Error,
-    },
-
-    #[error("Failed to write output FASTA")] WriteOutput {
-        #[source]
-        source: io::Error,
-    },
-}
+use crate::helper::error::GeneCutterError;
 
 pub fn process_gene_cutter(
     locator_output_pathbuf: PathBuf,

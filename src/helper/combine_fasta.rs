@@ -2,48 +2,8 @@ use bio::io::fasta;
 use std::fs;
 use std::io;
 use std::path::PathBuf;
-use thiserror::Error;
 
-#[derive(Debug, Error)]
-pub enum CombineError {
-    #[error("Failed to read input directory: {path}")] ReadDir {
-        path: PathBuf,
-        #[source]
-        source: io::Error,
-    },
-
-    #[error("Failed to open FASTA file: {path}")] OpenFile {
-        path: PathBuf,
-        #[source]
-        source: io::Error,
-    },
-
-    #[error("Invalid FASTA record in file: {path}")] FastaParse {
-        path: PathBuf,
-        #[source]
-        source: io::Error,
-    },
-
-    #[error("Invalid sequence characters in file {path} record {id}: {bad}")] InvalidSeqChars {
-        path: PathBuf,
-        id: String,
-        bad: String,
-    },
-
-    #[error("Failed to create output file: {path}")] CreateOutput {
-        path: PathBuf,
-        #[source]
-        source: io::Error,
-    },
-
-    #[error("Failed to create output directory: {path}")] CreateOutputDir {
-        path: PathBuf,
-        #[source]
-        source: io::Error,
-    },
-
-    #[error("Failed to write output FASTA")] WriteOutput(#[source] io::Error),
-}
+use crate::helper::error::CombineError;
 
 /// Example validator: DNA IUPAC + gap + N (customize as you like).
 fn validate_dna(seq: &[u8]) -> Result<(), String> {
